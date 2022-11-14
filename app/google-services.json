@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "15292429073",
+    "firebase_url": "https://mciq2-dedf5.firebaseio.com",
+    "project_id": "mciq2-dedf5",
+    "storage_bucket": "mciq2-dedf5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:15292429073:android:4a784a037b72e58e",
+        "android_client_info": {
+          "package_name": "mciq2.klnet.co.kr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "15292429073-sig6fao8is80lngsu41koqkg8fgb09jh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBg07UHWnVO0AJReyhVBSP9qVlVfvB-P90"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

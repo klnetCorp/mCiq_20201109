@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">PLISM 입출항</string>
+    <string name="default_notification_channel_id">mCiq</string>
+    <string name="default_notification_channel_name">mCiq2.0</string>
+</resources>
