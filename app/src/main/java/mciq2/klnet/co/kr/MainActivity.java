@@ -1028,7 +1028,7 @@ public class MainActivity extends AppCompatActivity {
         public void SendAppAutoReLogin(final String sVersion) {
             handler.post(new Runnable() {
                 public void run() {
-                    if (BuildConfig.DEBUG) ("CHECK", "SendAppAutoReLogin("+sVersion+")");
+                    if (BuildConfig.DEBUG) log.d("CHECK", "SendAppAutoReLogin("+sVersion+")");
 
                     float fVersion=Float.parseFloat(sVersion);
                     PackageManager packageManager = getPackageManager();
