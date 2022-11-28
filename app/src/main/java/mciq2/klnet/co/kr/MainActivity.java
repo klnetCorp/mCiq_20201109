@@ -136,8 +136,10 @@ public class MainActivity extends AppCompatActivity {
                     DataSet.getInstance().push_id = intent.getStringExtra("push_id");
                     DataSet.getInstance().msg = intent.getStringExtra("msg");
 
-                    Log.d("CHECK", "push value1, push_id:" +  DataSet.getInstance().push_id);
-                    Log.d("CHECK", "push value1, msg:" +  DataSet.getInstance().msg);
+                    if (BuildConfig.DEBUG) {
+                        Log.d("CHECK", "push value1, push_id:" + DataSet.getInstance().push_id);
+                        Log.d("CHECK", "push value1, msg:" + DataSet.getInstance().msg);
+                    }
 
                     //앱 실행 아이콘 개수 조절
                     Intent badgeIntent = new Intent("android.intent.action.BADGE_COUNT_UPDATE");
@@ -200,11 +202,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        Log.d("CHECK",  "push_id :" + DataSet.getInstance().push_id);
-        Log.d("CHECK",  "isrunapppush :" + DataSet.getInstance().isrunapppush);
-        Log.d("CHECK",  "userid :" + DataSet.getInstance().userid);
-        Log.d("CHECK",  "recv_id :" + DataSet.getInstance().recv_id);
-
+        if (BuildConfig.DEBUG) {
+            Log.d("CHECK", "push_id :" + DataSet.getInstance().push_id);
+            Log.d("CHECK", "isrunapppush :" + DataSet.getInstance().isrunapppush);
+            Log.d("CHECK", "userid :" + DataSet.getInstance().userid);
+            Log.d("CHECK", "recv_id :" + DataSet.getInstance().recv_id);
+        }
         super.onResume();
         if( DataSet.getInstance().push_id != null && ! DataSet.getInstance().push_id.equals("") && DataSet.getInstance().userid.equals( DataSet.getInstance().recv_id)) {
             if (DataSet.getInstance().isrunapppush) {
@@ -288,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
                 isRootingFlag = checkRootingFiles(createFiles(RootFilesPath));
             }
 
-            Log.d("test", "isRootingFlag = " + isRootingFlag);
+            if (BuildConfig.DEBUG) Log.d("test", "isRootingFlag = " + isRootingFlag);
 
             alertDialogBuilderExit.setTitle("프로그램 종료");
 
@@ -339,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
         final Context myApp = this;
 
         deviceId = DataSet.getDeviceID(this);
-        Log.d("CHECK", "deviceId :" + deviceId);
+        if (BuildConfig.DEBUG) Log.d("CHECK", "deviceId :" + deviceId);
 
         WebView01 = (ObservableWebView) findViewById(R.id.webView);
         WebSettings webSettings = WebView01.getSettings();
@@ -486,7 +489,7 @@ public class MainActivity extends AppCompatActivity {
         WebView01.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Log.d("CHECK", url);
+                if (BuildConfig.DEBUG) Log.d("CHECK", url);
                 if (view == null || url == null) {
                     return false;
                 }
@@ -624,13 +627,14 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences prefs2 = getSharedPreferences("JPP_GCM_Property", Activity.MODE_PRIVATE);
                     String sRegId = prefs2.getString("prefGCMRegsterID", null);
 
-
-                    Log.d("CHECK", "deviceId : "+  deviceId);
-                    Log.d("CHECK", "sRegId : "+  sRegId);
-                    Log.d("CHECK", "userid : "+  DataSet.getInstance().userid);
-                    Log.d("CHECK", "pushurl : "+  DataSet.push_url);
-                    Log.d("CHECK", "ModelName : "+  Build.MODEL);
-                    Log.d("CHECK", "OsVersion : "+  Build.VERSION.RELEASE);
+                    if (BuildConfig.DEBUG) {
+                        Log.d("CHECK", "deviceId : " + deviceId);
+                        Log.d("CHECK", "sRegId : " + sRegId);
+                        Log.d("CHECK", "userid : " + DataSet.getInstance().userid);
+                        Log.d("CHECK", "pushurl : " + DataSet.push_url);
+                        Log.d("CHECK", "ModelName : " + Build.MODEL);
+                        Log.d("CHECK", "OsVersion : " + Build.VERSION.RELEASE);
+                    }
 
 
 
@@ -686,7 +690,7 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences pref = getSharedPreferences("isFirst", Activity.MODE_PRIVATE);
                 boolean first = pref.getBoolean("isFirst", false);
                 if(first==false){
-                    Log.d("first","THE FIRST TIME");
+                    if (BuildConfig.DEBUG) Log.d("first","THE FIRST TIME");
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putBoolean("isFirst",true);
                     editor.commit();
@@ -744,7 +748,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static String getMarketVersion(String packageName) {
 
-        Log.d("CHECK1", packageName);
+        if (BuildConfig.DEBUG) Log.d("CHECK1", packageName);
 
         try {
             Document document = Jsoup.connect("https://play.google.com/store/apps/details?id=" + packageName).timeout(5000).get();
@@ -752,11 +756,11 @@ public class MainActivity extends AppCompatActivity {
             Elements Version = document.select(".htlgb").eq(3);
 
             for (Element mElement : Version) {
-                Log.d("###", mElement.text().trim());
+                if (BuildConfig.DEBUG) Log.d("###", mElement.text().trim());
                 return mElement.text().trim();
             }
         } catch (Exception ex) {
-            Log.d("###",ex.toString());
+            if (BuildConfig.DEBUG) Log.d("###",ex.toString());
             return "1.0";
         }
         return null;
@@ -769,7 +773,7 @@ public class MainActivity extends AppCompatActivity {
         public void SendVersion(final String arg) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "sendVersion(" + arg + ")");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "sendVersion(" + arg + ")");
 
                     String versionName = "";
                     try {
@@ -779,7 +783,7 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    Log.d("CHECK", "versionName(" + versionName + ")");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "versionName(" + versionName + ")");
 
                     if (arg != null && !arg.equals(versionName)) {
                         new AlertDialog.Builder(MainActivity.this)
@@ -810,14 +814,13 @@ public class MainActivity extends AppCompatActivity {
         public void SendAppAutoRegister(final String vId, final String vDeviceKey, final String isAutoLogin) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "SendAppAutoRegister(" + vId + ","+vDeviceKey+","+isAutoLogin+")");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "SendAppAutoRegister(" + vId + ","+vDeviceKey+","+isAutoLogin+")");
                     SharedPreferences prefs = getSharedPreferences("AutoLogin", Activity.MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString("isAutoLogin", isAutoLogin);
                     editor.putString("vId", vId);
                     //editor.putString("vDeviceKey", vDeviceKey);
                     editor.remove("vPassword");
-                    editor.remove("vDeviceKey");
 
                     editor.commit();
                     DataSet.getInstance().userid = vId;
@@ -861,7 +864,7 @@ public class MainActivity extends AppCompatActivity {
         public void SendAppAutoLoginResult(final String arg, final String arg1) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "SendAppAutoLoginResult(" + arg + "," + arg1 + ")");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "SendAppAutoLoginResult(" + arg + "," + arg1 + ")");
                     if("success".equals(arg)) {
                         //rel_intro.setVisibility(View.GONE);
                         //rel_main.setVisibility(View.VISIBLE);
@@ -900,7 +903,7 @@ public class MainActivity extends AppCompatActivity {
         public void SendAppConfigSetAutoLogin(final String arg) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "SendAppConfigSetAutoLogin(" + arg + ")");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "SendAppConfigSetAutoLogin(" + arg + ")");
 
                     SharedPreferences prefs = getSharedPreferences("AutoLogin", Activity.MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
@@ -916,7 +919,7 @@ public class MainActivity extends AppCompatActivity {
         public void SendAppDstPrtCode(final String arg, final String arg1) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "SendAppDstPrtCode(" + arg + "," + arg1 + ")");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "SendAppDstPrtCode(" + arg + "," + arg1 + ")");
 
                     SharedPreferences.Editor editor = prefsDstPrt.edit();
                     editor.putString("DstprtCode", arg);
@@ -946,7 +949,7 @@ public class MainActivity extends AppCompatActivity {
         public void SendAppGoWebUrl(final String url) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "SendAppGoWebUrl("+url+")");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "SendAppGoWebUrl("+url+")");
 
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(DataSet.connect_url + url));
                     startActivity(intent);
@@ -960,7 +963,7 @@ public class MainActivity extends AppCompatActivity {
         public void SendAppLink(final String arg) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "sendAppLink(" + arg + ")");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "sendAppLink(" + arg + ")");
                     if (arg != null) {
                         PackageInfo pi;
                         PackageManager pm = getPackageManager();
@@ -984,7 +987,7 @@ public class MainActivity extends AppCompatActivity {
         public void SendAppLogout(final String arg) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "SendAppLogout(" + arg + ")");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "SendAppLogout(" + arg + ")");
 //                    SharedPreferences settings =getSharedPreferences("AutoLogin", Context.MODE_PRIVATE);
 //                    settings.edit().clear().commit();
 //                    prefsDstPrt.edit().clear().commit();
@@ -1003,7 +1006,7 @@ public class MainActivity extends AppCompatActivity {
         public void setChangeMode(final String arg) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "setChangeMode()");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "setChangeMode()");
                     if ("D".equals(DataSet.isMode)) {
                         //REAL 사이트
                         DataSet.connect_url = DataSet.connect_real_url;
@@ -1025,19 +1028,19 @@ public class MainActivity extends AppCompatActivity {
         public void SendAppAutoReLogin(final String sVersion) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "SendAppAutoReLogin("+sVersion+")");
+                    if (BuildConfig.DEBUG) ("CHECK", "SendAppAutoReLogin("+sVersion+")");
 
                     float fVersion=Float.parseFloat(sVersion);
                     PackageManager packageManager = getPackageManager();
                     PackageInfo packageInfo = null;
-                    Log.d("###","forceUpdate");
+                    if (BuildConfig.DEBUG) Log.d("###","forceUpdate");
                     try {
                         packageInfo =packageManager.getPackageInfo(getPackageName(),0);
                     } catch (PackageManager.NameNotFoundException e) {
                         e.printStackTrace();
                     }
                     String currentVersion = packageInfo.versionName;
-                    Log.d("###","currentVersion:"+currentVersion);
+                    if (BuildConfig.DEBUG) Log.d("###","currentVersion:"+currentVersion);
                     float fCurrentVersion=Float.parseFloat(currentVersion);
                     if(fVersion > fCurrentVersion) {
                         AlertDialog.Builder alertDialogBuilder =
@@ -1067,11 +1070,12 @@ public class MainActivity extends AppCompatActivity {
                         String isAutoLogin = prefs.getString("isAutoLogin", "Y");
                         String vId = prefs.getString("vId", DataSet.getInstance().userid);
 
-                        Log.d("CHECK", "vId : " + vId + " isAutoLogin : " + isAutoLogin);
-                        Log.d("CHECK", "deviceId " + deviceId + " isAutoLogin : " + isAutoLogin);
-                        Log.d("CHECK","DataSet.getInstance().userid : "+DataSet.getInstance().userid);
-                        Log.d("CHECK","DataSet.getInstance().islogin : "+DataSet.getInstance().islogin);
-
+                        if (BuildConfig.DEBUG) {
+                            Log.d("CHECK", "vId : " + vId + " isAutoLogin : " + isAutoLogin);
+                            Log.d("CHECK", "deviceId " + deviceId + " isAutoLogin : " + isAutoLogin);
+                            Log.d("CHECK", "DataSet.getInstance().userid : " + DataSet.getInstance().userid);
+                            Log.d("CHECK", "DataSet.getInstance().islogin : " + DataSet.getInstance().islogin);
+                        }
                         WebView01.loadUrl("javascript:setIsAutoLogin('"+isAutoLogin+"','" + deviceId + "','" + vId + "')");
                         if (DataSet.getInstance().islogin.equals("true") && isAutoLogin.equals("Y") && !vId.equals("") ) {
                             WebView01.loadUrl("javascript:appAutoLogin('" + vId + "','" + deviceId + "')");
@@ -1086,7 +1090,7 @@ public class MainActivity extends AppCompatActivity {
         public void SendAppInitConfig() {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "SendAppInitConfig()");
+                    if (BuildConfig.DEBUG) Log.d("CHECK", "SendAppInitConfig()");
                     SharedPreferences prefs = getSharedPreferences("AutoLogin", Activity.MODE_PRIVATE);
                     String isAutoLogin = prefs.getString("isAutoLogin", "");
                     if ("Y".equals(isAutoLogin)) {
@@ -1154,7 +1158,7 @@ public class MainActivity extends AppCompatActivity {
     private void checkPermissionF() {
         if (android.os.Build.VERSION.SDK_INT >= M) {
             // only for LOLLIPOP and newer versions
-            Log.d("CHECK","Hello Marshmallow (마시멜로우)");
+            if (BuildConfig.DEBUG) Log.d("CHECK","Hello Marshmallow (마시멜로우)");
             int permissionResult = getApplicationContext().checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
             if (permissionResult == PackageManager.PERMISSION_DENIED) {
@@ -1198,7 +1202,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         } else {
-            Log.d("CHECK","(마시멜로우 이하 버전입니다.)");
+            if (BuildConfig.DEBUG) Log.d("CHECK","(마시멜로우 이하 버전입니다.)");
             //   getThumbInfo();
         }
 
