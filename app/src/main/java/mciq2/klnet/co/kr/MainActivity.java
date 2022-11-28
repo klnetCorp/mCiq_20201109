@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final AlertDialog.Builder alertDialogBuilderExit = new AlertDialog.Builder(this);
-
+        //Log.e("###","BuildConfig.DEBUG:"+BuildConfig.DEBUG);
         if(!BuildConfig.DEBUG ) {
             queue = Volley.newRequestQueue(this);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, DataSet.connect_url + "/newmobile/selectMobileHashKey.do?app_id=MCIQ&app_os=android&app_version=1", null, new Response.Listener<JSONObject>() {
@@ -345,6 +345,7 @@ public class MainActivity extends AppCompatActivity {
         WebSettings webSettings = WebView01.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setAllowFileAccess(true);
+        webSettings.setDomStorageEnabled(true);
         WebView01.addJavascriptInterface(new AndroidBridge(), "AndroidInterface");
         WebView01.clearHistory();
         WebView01.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
@@ -390,7 +391,8 @@ public class MainActivity extends AppCompatActivity {
         badgeIntent.putExtra("badge_count_class_name", getComponentName().getClassName());
         sendBroadcast(badgeIntent);
 
-        forceUpdate();
+        //구글 STORE에서 버전읽는부분 막힘. 2022.5월 ?
+        //forceUpdate();
 //        String storeVersion = getMarketVersion(getPackageName());
 //        String deviceVersion = "";
 //        try {
@@ -608,19 +610,16 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences prefs = getSharedPreferences("AutoLogin", Activity.MODE_PRIVATE);
                     String isAutoLogin = prefs.getString("isAutoLogin", "");
                     String vId = prefs.getString("vId", "");
-                    String vPassword = prefs.getString("vPassword", "");
 
-                    Log.d("CHECK", "vId : " + vId + " vPassword : " + vPassword + " isAutoLogin : " + isAutoLogin);
-
-
-                    if (isAutoLogin.equals("Y") && !vId.equals("") && !vPassword.equals("")) {
-                        WebView01.loadUrl("javascript:setIsAutoLogin('Y')");
-                        WebView01.loadUrl("javascript:appAutoLogin('" + vId + "','" + vPassword + "')");
+                    WebView01.loadUrl("javascript:setIsAutoLogin('" + isAutoLogin + "','" + deviceId + "','" + vId + "')");
+                    if (isAutoLogin.equals("Y") && !vId.equals("") && !deviceId.equals("")) {
+                        WebView01.loadUrl("javascript:appAutoLogin('" + vId + "','" + deviceId + "')");
                     } else {
                         rel_intro.setVisibility(View.GONE);
                         rel_main.setVisibility(View.VISIBLE);
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE );
                     }
+
                 } else {
                     SharedPreferences prefs2 = getSharedPreferences("JPP_GCM_Property", Activity.MODE_PRIVATE);
                     String sRegId = prefs2.getString("prefGCMRegsterID", null);
@@ -808,15 +807,17 @@ public class MainActivity extends AppCompatActivity {
 
         //로그인 후 저장
         @JavascriptInterface
-        public void SendAppAutoRegister(final String vId, final String vEncPwd, final String isAutoLogin) {
+        public void SendAppAutoRegister(final String vId, final String vDeviceKey, final String isAutoLogin) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "SendAppAutoRegister(" + vId + ","+vEncPwd+","+isAutoLogin+")");
+                    Log.d("CHECK", "SendAppAutoRegister(" + vId + ","+vDeviceKey+","+isAutoLogin+")");
                     SharedPreferences prefs = getSharedPreferences("AutoLogin", Activity.MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString("isAutoLogin", isAutoLogin);
                     editor.putString("vId", vId);
-                    editor.putString("vPassword", vEncPwd);
+                    //editor.putString("vDeviceKey", vDeviceKey);
+                    editor.remove("vPassword");
+                    editor.remove("vDeviceKey");
 
                     editor.commit();
                     DataSet.getInstance().userid = vId;
@@ -840,6 +841,17 @@ public class MainActivity extends AppCompatActivity {
 
                     //WebView01.loadUrl(DataSet.connect_url + "/newmobile/main.jsp");
 
+                }
+            });
+        }
+
+        //기기값 전달
+        @JavascriptInterface
+        public void SendDeviceId() {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    WebView01.loadUrl("javascript:fn_setDeviceId('" + deviceId + "')");
                 }
             });
         }
@@ -973,11 +985,36 @@ public class MainActivity extends AppCompatActivity {
             handler.post(new Runnable() {
                 public void run() {
                     Log.d("CHECK", "SendAppLogout(" + arg + ")");
-                    SharedPreferences settings =getSharedPreferences("AutoLogin", Context.MODE_PRIVATE);
-                    settings.edit().clear().commit();
-                    prefsDstPrt.edit().clear().commit();
-                    DstprtCode = "";
-                    DstprtName = "";
+//                    SharedPreferences settings =getSharedPreferences("AutoLogin", Context.MODE_PRIVATE);
+//                    settings.edit().clear().commit();
+//                    prefsDstPrt.edit().clear().commit();
+//                    DstprtCode = "";
+//                    DstprtName = "";
+//                    SharedPreferences.Editor editor = prefs.edit();
+//                    editor.putString("vDeviceKey", "");
+//                    editor.commit();
+                    WebView01.loadUrl(DataSet.connect_url + arg);
+                }
+            });
+        }
+
+        //운영,개발 사이트 연결 수정
+        @JavascriptInterface
+        public void setChangeMode(final String arg) {
+            handler.post(new Runnable() {
+                public void run() {
+                    Log.d("CHECK", "setChangeMode()");
+                    if ("D".equals(DataSet.isMode)) {
+                        //REAL 사이트
+                        DataSet.connect_url = DataSet.connect_real_url;
+                        DataSet.push_url = DataSet.push_real_url;
+                        DataSet.isMode = "P";
+                    } else {
+                        //TEST 사이트
+                        DataSet.connect_url = DataSet.connect_test_url;
+                        DataSet.push_url = DataSet.push_test_url;
+                        DataSet.isMode = "D";
+                    }
                     WebView01.loadUrl(DataSet.connect_url + arg);
                 }
             });
@@ -985,22 +1022,60 @@ public class MainActivity extends AppCompatActivity {
 
         //세션끊겼을때 자동로그인 처리
         @JavascriptInterface
-        public void SendAppAutoReLogin() {
+        public void SendAppAutoReLogin(final String sVersion) {
             handler.post(new Runnable() {
                 public void run() {
-                    Log.d("CHECK", "SendAppAutoReLogin()");
+                    Log.d("CHECK", "SendAppAutoReLogin("+sVersion+")");
 
-                    SharedPreferences prefs = getSharedPreferences("AutoLogin", Activity.MODE_PRIVATE);
-                    String isAutoLogin = prefs.getString("isAutoLogin", "");
-                    String vId = prefs.getString("vId", "");
-                    String vPassword = prefs.getString("vPassword", "");
+                    float fVersion=Float.parseFloat(sVersion);
+                    PackageManager packageManager = getPackageManager();
+                    PackageInfo packageInfo = null;
+                    Log.d("###","forceUpdate");
+                    try {
+                        packageInfo =packageManager.getPackageInfo(getPackageName(),0);
+                    } catch (PackageManager.NameNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    String currentVersion = packageInfo.versionName;
+                    Log.d("###","currentVersion:"+currentVersion);
+                    float fCurrentVersion=Float.parseFloat(currentVersion);
+                    if(fVersion > fCurrentVersion) {
+                        AlertDialog.Builder alertDialogBuilder =
+                                new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, android.R.style.Theme_DeviceDefault_Light));
+                        alertDialogBuilder.setTitle("업데이트");alertDialogBuilder
+                                .setMessage("새로운버전("+fVersion+")이 나왔습니다. 업데이트 하시겠습니까?")
+                                .setPositiveButton("업데이트 바로가기", new DialogInterface.OnClickListener() {
 
-                    Log.d("CHECK", "vId : " + vId + " vPassword : " + vPassword + " isAutoLogin : " + isAutoLogin);
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent intent = new Intent(Intent.ACTION_VIEW);
 
+                                        intent.setData(Uri.parse("market://details?id=" + getPackageName()));
+                                        startActivity(intent);
+                                    }
+                                }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        MainActivity.this.finish();
+                                    }
+                                });
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.setCanceledOnTouchOutside(true);
+                        alertDialog.show();
+                    } else {
+                        SharedPreferences prefs = getSharedPreferences("AutoLogin", Activity.MODE_PRIVATE);
+                        String isAutoLogin = prefs.getString("isAutoLogin", "Y");
+                        String vId = prefs.getString("vId", DataSet.getInstance().userid);
 
-                    if (DataSet.getInstance().islogin.equals("true") && isAutoLogin.equals("Y") && !vId.equals("") && !vPassword.equals("")) {
-                        WebView01.loadUrl("javascript:setIsAutoLogin('Y')");
-                        WebView01.loadUrl("javascript:appAutoLogin('" + vId + "','" + vPassword + "')");
+                        Log.d("CHECK", "vId : " + vId + " isAutoLogin : " + isAutoLogin);
+                        Log.d("CHECK", "deviceId " + deviceId + " isAutoLogin : " + isAutoLogin);
+                        Log.d("CHECK","DataSet.getInstance().userid : "+DataSet.getInstance().userid);
+                        Log.d("CHECK","DataSet.getInstance().islogin : "+DataSet.getInstance().islogin);
+
+                        WebView01.loadUrl("javascript:setIsAutoLogin('"+isAutoLogin+"','" + deviceId + "','" + vId + "')");
+                        if (DataSet.getInstance().islogin.equals("true") && isAutoLogin.equals("Y") && !vId.equals("") ) {
+                            WebView01.loadUrl("javascript:appAutoLogin('" + vId + "','" + deviceId + "')");
+                        }
                     }
                 }
             });
@@ -1350,7 +1425,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected JSONObject doInBackground(String... params) {
-
             try {
                 latestVersion = Jsoup.connect("https://play.google.com/store/apps/details?id=" + context.getPackageName()+ "&hl=en")
                         .timeout(30000)

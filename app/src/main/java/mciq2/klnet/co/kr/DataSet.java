@@ -21,11 +21,20 @@ public class DataSet {
 	public String type;		// 메세지 종류
 
 
-
+	//최초
+	public static String isMode = "D";  //P-운영,D-개발  최초접속모드
 	public static String push_url = "https://testpush.plism.com";
 	//public static String push_url = "https://push.plism.com";
 	public static String connect_url = "https://devmciq.plism.com";
 	//public static String connect_url = "https://mciq.plism.com";
+
+	//운영
+	public static String connect_real_url = "https://mciq.plism.com";
+	public static String push_real_url = "https://push.plism.com";
+
+	//개발
+	public static String connect_test_url = "https://devmciq.plism.com";
+	public static String push_test_url = "https://testpush.plism.com";
 
 
 	private static DataSet _instance;

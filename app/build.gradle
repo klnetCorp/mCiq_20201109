@@ -4,7 +4,6 @@ android {
     signingConfigs {
         debug{
             keyAlias 'mciq'
-
             keyPassword 'klnet123'
             storePassword 'klnet123'
             storeFile file('/Users/ebiz/Desktop/workspace/입출항/android/new/mCiq_20201109/keystore.jks')
@@ -25,8 +24,8 @@ android {
         applicationId "mciq2.klnet.co.kr"
         minSdkVersion 15
         targetSdkVersion 29
-        versionCode 10
-        versionName "2.0.8"
+        versionCode 12
+        versionName "2.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
