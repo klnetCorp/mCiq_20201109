@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
 
         Log.i("CHECK", "push_id : " + intent.getStringExtra("push_id"));
+
         //앱이 실행된 상태에서 푸시를 보는 경우
         if (intent != null) {
             if(DataSet.getInstance().islogin.equals("true")) {

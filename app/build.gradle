@@ -24,7 +24,7 @@ android {
         applicationId "mciq2.klnet.co.kr"
         minSdkVersion 15
         targetSdkVersion 31
-        versionCode 12
+        versionCode 14
         versionName "2.2"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
